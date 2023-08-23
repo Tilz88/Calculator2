@@ -16,7 +16,7 @@ public class Calculator {
     public static String calc(String input) {
         String[] tokens = input.split(" ");
         if (tokens.length != 3) {
-            return "Ошибка: Формат математической операции не удовлетворяет заданию - два операнда и один оператор.";
+            throw new IllegalArgumentException("Ошибка: Формат математической операции не удовлетворяет заданию - два операнда и один оператор.");
         }
 
         String numStr1 = tokens[0];
@@ -27,7 +27,7 @@ public class Calculator {
         boolean isRomanNumeral2 = isRomanNumeral(numStr2);
 
         if ((isRomanNumeral1 && !isRomanNumeral2) || (!isRomanNumeral1 && isRomanNumeral2)) {
-            return "Ошибка: Используются одновременно разные системы счисления.";
+            throw new IllegalArgumentException("Ошибка: Используются одновременно разные системы счисления.");
         }
 
         int num1, num2;
@@ -41,7 +41,7 @@ public class Calculator {
         }
 
         if (num1 <= 0 || num2 <= 0 || num1 > 10 || num2 > 10) {
-            return "Ошибка: Калькулятор принимает на вход числа от 1 до 10 включительно.";
+            throw new IllegalArgumentException("Ошибка: Калькулятор принимает на вход числа от 1 до 10 включительно.");
         }
 
         int result;
@@ -59,7 +59,7 @@ public class Calculator {
                 result = num1 / num2;
                 break;
             default:
-                return "Ошибка: Недопустимый оператор: " + operator;
+                throw new IllegalArgumentException("Ошибка: Недопустимый оператор: " + operator);
         }
 
         return isRomanNumeral1 ? intToRoman(result) : String.valueOf(Math.max(result, 0));
@@ -92,16 +92,35 @@ public class Calculator {
     }
 
     public static String intToRoman(int num) {
-        if (num == 1) return "I";
-        if (num == 2) return "II";
-        if (num == 3) return "III";
-        if (num == 4) return "IV";
-        if (num == 5) return "V";
-        if (num == 6) return "VI";
-        if (num == 7) return "VII";
-        if (num == 8) return "VIII";
-        if (num == 9) return "IX";
-        if (num == 10) return "X";
-        throw new IllegalArgumentException("Cannot convert " + num + " to Roman numeral.");
+        if (num < 1 || num > 100) {
+            throw new IllegalArgumentException("Невозможно конвертировать " + num + " в римские числа.");
+        }
+
+        String[] romanNumerals = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
+                "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
+                // Add more numerals as needed
+        };
+
+        return romanNumerals[num - 1];
+    }
+
+    static String arabicToRoman(int arabic) {
+        if (arabic < 1) {
+            throw new IllegalArgumentException("Ошибка: Невозможно преобразовать отрицательные или нулевые значения в римские цифры.");
+        }
+
+        String[] romanNumerals = {"I", "IV", "V", "IX", "X", "XL", "L", "XC", "C"};
+        int[] values = {1, 4, 5, 9, 10, 40, 50, 90, 100};
+
+        StringBuilder roman = new StringBuilder();
+
+        for (int i = values.length - 1; i >= 0; i--) {
+            while (arabic >= values[i]) {
+                roman.append(romanNumerals[i]);
+                arabic -= values[i];
+            }
+        }
+
+        return roman.toString();
     }
 }
